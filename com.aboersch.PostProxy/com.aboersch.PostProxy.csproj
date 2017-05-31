@@ -4,6 +4,9 @@
     <AssemblyName>com.aboersch.PostProxy</AssemblyName>
     <RootNamespace>com.aboersch.PostProxy</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="2.1.0-beta1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="2.1.0-beta1" />
