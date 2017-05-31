@@ -2,8 +2,10 @@ image: Visual Studio 2017
 configuration: Release
 before_build:
   - cmd: nuget restore
+after_build:
+  - cmd: 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\com.aboersch.PostProxy\bin\$(configuration)\net461\**\*.*
 artifacts:
-  - path: com.aboersch.PostProxy\bin\$(configuration)\net461\**\*.*
+  - path: myapp.zip
     name: app
 deploy:
   - provider: WebDeploy
