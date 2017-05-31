@@ -6,19 +6,22 @@ artifacts:
   - path: com.aboersch.PostProxy\bin\$(configuration)\**\*.*
     name: app
 deploy:
-  - provider: FTP
-    host: waws-prod-am2-123.ftp.azurewebsites.windows.net/site/wwwroot
-    protocol: ftp
-    username: post-proxy\$post-proxy
+  - provider: WebDeploy
+    server: post-proxy.scm.azurewebsites.net:443
+    website: post-proxy
+    username: $post-proxy
     password:
       secure: Y+DtdyBvdsOrb+ZKMr8bJ+xUvkTu+kmljQ0fqmSuC/r9HaeJLxn0AzN6fL8zLcgtDZ7fm0c+leNE964py9bCwQ==
+    remove_files: false
+    ntlm: false
+    artifact: app
 after_deploy:
   - ps: |
       $baseUrl = "https://post-proxy.azurewebsites.net/api"
       $escapedTestPostUrl = [Uri]::EscapeDataString("$baseUrl/TestPost")
       $testUrl = "$baseUrl/PostProxy?url=$escapedTestPostUrl&name=Test"
       $webRequest = Invoke-WebRequest -Uri "$testurl"
-      if(!$webRequest.Content.Equals('"\"Hello FAIL\""'))
+      if(!$webRequest.Content.Equals('"\"Hello Test\""'))
       { 
         throw "Smoke Test Failed"
       }
