@@ -3,8 +3,13 @@ configuration: Release
 before_build:
   - cmd: nuget restore
 after_build:
-  - cmd: ren %APPVEYOR_BUILD_FOLDER%\com.aboersch.PostProxy\bin\Release\net461 bin
-  - cmd: 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\com.aboersch.PostProxy\bin\Release\**\*.*
+  - ps: |
+      $folderPath = "$($env:APPVEYOR_BUILD_FOLDER)\com.aboersch.PostProxy\bin\Release\net461"
+      Write-Host $folderPath
+      $folder = Get-Item $folderPath
+      $folder.GetDirectories() | % { Move-Item $_.FullName $folder.Parent.FullName }
+      Rename-Item $folderPath bin
+      Compress-Archive ([IO.Path]::Combine($folder.Parent.FullName, "bin")) myapp.zip
 artifacts:
   - path: myapp.zip
     name: app
