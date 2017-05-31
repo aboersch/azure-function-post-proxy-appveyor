@@ -2,11 +2,13 @@ image: Visual Studio 2017
 configuration: Release
 before_build:
   - cmd: nuget restore
+artifacts:
+  - path: com.aboersch.PostProxy\bin\$(configuration)\**\*.*
+    name: app
 deploy:
   - provider: FTP
     host: ftp://waws-prod-am2-123.ftp.azurewebsites.windows.net/site/wwwroot
     protocol: ftp
     username: post-proxy\$post-proxy
-    artifact: com.aboersch.PostProxy\bin\Release\**\*.*
     password:
       secure: Y+DtdyBvdsOrb+ZKMr8bJ+xUvkTu+kmljQ0fqmSuC/r9HaeJLxn0AzN6fL8zLcgtDZ7fm0c+leNE964py9bCwQ==
