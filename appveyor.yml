@@ -3,16 +3,17 @@ configuration: Release
 before_build:
   - cmd: nuget restore
 artifacts:
-  - path: com.aboersch.PostProxy\bin\$(configuration)\**\*.*
+  - path: com.aboersch.PostProxy\bin\$(configuration)\net461\**\*.*
     name: app
 deploy:
   - provider: WebDeploy
-    server: post-proxy.scm.azurewebsites.net:443
+    server: https://post-proxy.scm.azurewebsites.net//msdeploy.axd?site=post-proxy
     website: post-proxy
     username: $post-proxy
     password:
       secure: Y+DtdyBvdsOrb+ZKMr8bJ+xUvkTu+kmljQ0fqmSuC/r9HaeJLxn0AzN6fL8zLcgtDZ7fm0c+leNE964py9bCwQ==
     remove_files: false
+    app_offline: false
     ntlm: false
     artifact: app
 after_deploy:
