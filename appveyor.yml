@@ -1,7 +1,2 @@
 image: Visual Studio 2017
-before_build:
-  - cmd: nuget restore
-test:
-  assemblies:
-    only:
-      - '**\*.tests.dll'
+configuration: Release
