@@ -41,12 +41,6 @@ namespace com.aboersch.PostProxy.Tests
             catch { }
         }
 
-        [TestMethod]
-        public void NoForwardingUrlTest()
-        {
-            NoForwardingUrl(PARAM_1);
-        }
-
         static string[] ForwardingArray = new[] { PARAM_FORWARDING_URL };
 
         public void ValidForwardingUrl(params string[] queryParameters)
@@ -54,6 +48,12 @@ namespace com.aboersch.PostProxy.Tests
             Assert.AreEqual(
                 ForwardingRequestBuilder.CreateUrl(CreateRequestUrl(queryParameters)),
                 GetResultUrl(queryParameters.Except(ForwardingArray).ToArray()));
+        }
+
+        [TestMethod]
+        public void NoForwardingUrlTest()
+        {
+            NoForwardingUrl(PARAM_1);
         }
 
         [TestMethod]
@@ -72,19 +72,15 @@ namespace com.aboersch.PostProxy.Tests
                 foreach (var variation in variations)
                 {
                     var shouldFail = !variation.Contains(PARAM_FORWARDING_URL);
-                    var permutations = new Permutations<string>(variation, GenerateOption.WithoutRepetition);
-                    foreach (var permutation in permutations)
-                    {
-                        var queryParameters = permutation.ToArray();
-                        if (shouldFail)
-                            NoForwardingUrl(queryParameters);
-                        else
-                            ValidForwardingUrl(queryParameters);
-                    }
+
+                    var queryParameters = variation.ToArray();
+                    if (shouldFail)
+                        NoForwardingUrl(queryParameters);
+                    else
+                        ValidForwardingUrl(queryParameters);
+
                 }
             }
         }
-
-
     }
 }
