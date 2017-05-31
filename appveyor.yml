@@ -12,3 +12,13 @@ deploy:
     username: post-proxy\$post-proxy
     password:
       secure: Y+DtdyBvdsOrb+ZKMr8bJ+xUvkTu+kmljQ0fqmSuC/r9HaeJLxn0AzN6fL8zLcgtDZ7fm0c+leNE964py9bCwQ==
+after_deploy:
+  - ps: >
+    $baseUrl = "https://post-proxy.azurewebsites.net/api"
+    $escapedTestPostUrl = [Uri]::EscapeDataString("$baseUrl/TestPost")
+    $testUrl = "$baseUrl/PostProxy?url=$escapedTestPostUrl&name=Test"
+    $webRequest = Invoke-WebRequest -Uri "$testurl"
+    if(!$webRequest.Content.Equals('"\"Hello FAIL\""'))
+    { 
+      throw "Smoke Test Failed"
+    }
