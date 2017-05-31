@@ -3,7 +3,7 @@ configuration: Release
 before_build:
   - cmd: nuget restore
 after_build:
-  - cmd: 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\com.aboersch.PostProxy\bin\Release\net461\**\*.*
+  - cmd: 7z a myapp.zip %APPVEYOR_BUILD_FOLDER%\com.aboersch.PostProxy\bin\Release\**\*.*
 artifacts:
   - path: myapp.zip
     name: app
