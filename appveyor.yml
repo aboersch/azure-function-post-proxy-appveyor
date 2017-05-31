@@ -7,7 +7,7 @@ artifacts:
     name: app
 deploy:
   - provider: WebDeploy
-    server: https://post-proxy.scm.azurewebsites.net//msdeploy.axd?site=post-proxy
+    server: https://post-proxy.scm.azurewebsites.net:443/msdeploy.axd?site=post-proxy
     website: post-proxy
     username: $post-proxy
     password:
