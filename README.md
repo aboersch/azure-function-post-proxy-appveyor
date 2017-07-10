@@ -1,4 +1,4 @@
-# azure-function-post-proxy-appveyor ![BuildStatus](https://ci.appveyor.com/api/projects/status/github/aboersch/azure-function-post-proxy-appveyor?svg=true)
+# azure-function-post-proxy-appveyor <a href="https://ci.appveyor.com/project/aboersch/azure-function-post-proxy-appveyor">![BuildStatus](https://ci.appveyor.com/api/projects/status/github/aboersch/azure-function-post-proxy-appveyor?svg=true)</a>
 
 Azure function that will transform a http GET Request to a POST Request to the escaped URL specified as a query parameter, passing along the content of the GET Request as well as all other query parameters.
 
