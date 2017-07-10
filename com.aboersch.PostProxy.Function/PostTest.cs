@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using Newtonsoft.Json.Linq;
 
 namespace com.aboersch.PostProxy.Function
 {
@@ -19,11 +20,19 @@ namespace com.aboersch.PostProxy.Function
                 .FirstOrDefault(q => string.Compare(q.Key, "name", StringComparison.OrdinalIgnoreCase) == 0)
                 .Value;
 
-            // Get request body
-            dynamic data = await req.Content.ReadAsAsync<object>();
-
-            // Set name to query string or body data
-            name = name ?? data?.name;
+            if(string.IsNullOrEmpty(name))
+                try
+                {
+                    // Get request body as JSON
+                    var data = JObject.Parse(await req.Content.ReadAsStringAsync());
+                    JToken value;
+                    if (data != null && data.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out value))
+                        name = value.ToString();
+                }
+                catch
+                {
+                    // ignored
+                }
 
             return name == null
                 ? req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a name on the query string or in the request body")
