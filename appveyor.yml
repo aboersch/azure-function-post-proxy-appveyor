@@ -24,7 +24,7 @@ after_deploy:
       $escapedTestPostUrl = [Uri]::EscapeDataString("$baseUrl/TestPost")
       $testUrl = "$baseUrl/PostProxy?url=$escapedTestPostUrl&name=Test"
       $webRequest = Invoke-WebRequest -Uri "$testurl"
-      if(!$webRequest.Content.Equals('"\"Hello Test\""'))
+      if(!$webRequest.Content.Equals('"Hello Test"'))
       { 
         throw "Smoke Test Failed"
       }
