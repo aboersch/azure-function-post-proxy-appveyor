@@ -5,17 +5,17 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 
-namespace com.aboersch.PostProxy
+namespace com.aboersch.PostProxy.Function
 {
     public static class PostProxy
     {
         [FunctionName("PostProxy")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]HttpRequestMessage req, TraceWriter log)
         {
-            var forwardingUrl = ForwardingRequestBuilder.CreateUrl(req.RequestUri);
+            var forwardingRequest = new ForwardingRequest(req.RequestUri);
             using (var client = new HttpClient())
             {
-                var resp = await client.PostAsync(forwardingUrl, req.Content);
+                var resp = await client.PostAsync(forwardingRequest.Url, new StringContent(forwardingRequest.Content));
                 return req.CreateResponse(HttpStatusCode.OK, await resp.Content.ReadAsStringAsync());
             }
         }

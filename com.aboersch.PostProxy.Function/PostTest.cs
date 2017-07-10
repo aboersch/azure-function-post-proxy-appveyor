@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -6,7 +7,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 
-namespace com.aboersch.PostProxy
+namespace com.aboersch.PostProxy.Function
 {
     public static class PostTest
     {
@@ -15,7 +16,7 @@ namespace com.aboersch.PostProxy
         {
             // parse query parameter
             string name = req.GetQueryNameValuePairs()
-                .FirstOrDefault(q => string.Compare(q.Key, "name", true) == 0)
+                .FirstOrDefault(q => string.Compare(q.Key, "name", StringComparison.OrdinalIgnoreCase) == 0)
                 .Value;
 
             // Get request body
