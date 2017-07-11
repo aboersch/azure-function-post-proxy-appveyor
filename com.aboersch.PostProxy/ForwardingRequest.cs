@@ -1,48 +1,38 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace com.aboersch.PostProxy
 {
     public class ForwardingRequest
     {
-        public string Url { get; }
-        public string Content { get; }
+        public string ForwardingUrl { get; }
+        public string JsonContent { get; }
         public ForwardingRequest(Uri requestUri)
         {
             string url = null;
             var forwardingParams = new StringBuilder();
-            var forwardingContent = new StringBuilder("{");
+            var json = new JObject();
             foreach (var requestParameter in requestUri.Query.TrimStart('?')
                 .Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(parameter => parameter.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries)))
+                .Select(parameter => new RequestParameter(parameter)))
             {
-                if (requestParameter[0].Equals("url", StringComparison.OrdinalIgnoreCase))
+                if (requestParameter.Key.Equals("url", StringComparison.OrdinalIgnoreCase))
                 {
-                    url = Uri.UnescapeDataString(requestParameter[1]);
+                    url = Uri.UnescapeDataString(requestParameter.Value);
                     continue;
                 }
-                forwardingParams.AppendFormat("{0}{1}={2}", forwardingParams.Length == 0 ? '?' : '&', requestParameter[0], requestParameter[1]);
-                forwardingContent.AppendFormat("{0}\"{1}\":{2}", forwardingContent.Length == 1 ? null : ",", requestParameter[0], ParseData(requestParameter[1]));
+                forwardingParams.AppendFormat("{0}{1}={2}", forwardingParams.Length == 0 ? '?' : '&',
+                    requestParameter.Key, requestParameter.Value);
+                json.Add(requestParameter.Key, requestParameter.JToken);
             }
             if (string.IsNullOrEmpty(url))
                 throw new InvalidOperationException("The 'url' query parameter is not optional");
-            Url = url + forwardingParams;
-
-            forwardingContent.Append('}');
-            Content = forwardingContent.ToString();
-        }
-
-        private static string ParseData(string data)
-        {
-            try
-            {
-                return Newtonsoft.Json.Linq.JToken.Parse(data).ToString();
-            }
-            catch
-            {
-                return string.Format("\"{0}\"", data);
-            }
+            ForwardingUrl = url + forwardingParams;
+            
+            JsonContent = json.ToString(Formatting.None);
         }
     }
 }

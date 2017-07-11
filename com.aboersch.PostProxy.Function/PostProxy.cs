@@ -15,7 +15,8 @@ namespace com.aboersch.PostProxy.Function
             var forwardingRequest = new ForwardingRequest(req.RequestUri);
             using (var client = new HttpClient())
             {
-                var resp = await client.PostAsync(forwardingRequest.Url, new StringContent(forwardingRequest.Content));
+                var resp = await client.PostAsync(forwardingRequest.ForwardingUrl,
+                    new StringContent(forwardingRequest.JsonContent));
                 return req.CreateResponse(HttpStatusCode.OK, await resp.Content.ReadAsStringAsync());
             }
         }

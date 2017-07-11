@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Combinatorics.Collections;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace com.aboersch.PostProxy.Tests
 {
@@ -9,29 +10,31 @@ namespace com.aboersch.PostProxy.Tests
     public class ForwardingRequestTest
     {
         const string BaseAddress = "http://web.address/route";
-        const string StringParam = "stringParam=string";
-        const string BoolParam = "boolParam=true";
-        const string NumberParam = "numberParam=1";
+
+        static readonly Parameter StringParam = new Parameter(nameof(StringParam), "string");
+        static readonly Parameter BoolParam = new Parameter(nameof(BoolParam), true, "true");
+        static readonly Parameter NumberParam = new Parameter(nameof(NumberParam), 1);
+
         const string ForwardingUrl = "http://forward.url/forwardroute";
         //$"url={Uri.EscapeDataString(FORWARDING_URL)}"
-        const string ParamForwardingUrl = "url=http%3A%2F%2Fforward.url%2Fforwardroute";
+        static readonly Parameter ForwardingUrlParam = new Parameter("url", "=http%3A%2F%2Fforward.url%2Fforwardroute");
 
-        private Uri CreateRequestUrl(params string[] queryParameters)
+        private Uri CreateRequestUrl(params Parameter[] queryParameters)
         {
             return new Uri(CreateUrl(BaseAddress, queryParameters));
         }
 
-        private string GetResultUrl(params string[] queryParameters)
+        private string GetResultUrl(params Parameter[] queryParameters)
         {
             return CreateUrl(ForwardingUrl, queryParameters);
         }
 
-        private string CreateUrl(string baseUrl, params string[] queryParameters)
+        private string CreateUrl(string baseUrl, params Parameter[] queryParameters)
         {
-            return $"{baseUrl}{(queryParameters.Any() ? "?" : null) }{string.Join("&", queryParameters)}";
+            return $"{baseUrl}{(queryParameters.Any() ? "?" : null) }{string.Join("&", queryParameters.Select(p => p.QueryParameter))}";
         }
 
-        private void NoForwardingUrl(params string[] queryParameters)
+        private void NoForwardingUrl(params Parameter[] queryParameters)
         {
             try
             {
@@ -45,14 +48,28 @@ namespace com.aboersch.PostProxy.Tests
             }
         }
 
-        static readonly string[] ForwardingArray = { ParamForwardingUrl };
+        static readonly Parameter[] ForwardingArray = { ForwardingUrlParam };
 
-        private void ValidForwardingUrl(params string[] queryParameters)
+        private void ValidForwardingUrl(params Parameter[] queryParameters)
         {
             var forwardingRequest = new ForwardingRequest(CreateRequestUrl(queryParameters));
             Assert.AreEqual(
-                forwardingRequest.Url,
+                forwardingRequest.ForwardingUrl,
                 GetResultUrl(queryParameters.Except(ForwardingArray).ToArray()));
+            var jsonToken = JToken.Parse(forwardingRequest.JsonContent);
+
+            foreach (var queryParameter in queryParameters)
+            {
+                if (queryParameter == ForwardingUrlParam)
+                    continue;
+                var value = ((JValue)jsonToken[queryParameter.Key]).Value;
+                var compValue = queryParameter.RawValue;
+                if (compValue is int)
+                {
+                    compValue = Convert.ToInt64(compValue);
+                }
+                Assert.AreEqual(value, compValue);
+            }
         }
 
         [TestMethod]
@@ -64,19 +81,19 @@ namespace com.aboersch.PostProxy.Tests
         [TestMethod]
         public void ValidForwardingUrlTest()
         {
-            ValidForwardingUrl(ParamForwardingUrl, StringParam, BoolParam, NumberParam);
+            ValidForwardingUrl(ForwardingUrlParam, StringParam, BoolParam, NumberParam);
         }
 
         [TestMethod]
         public void ParameterPermutationsTest()
         {
-            var paramList = new[] { StringParam, BoolParam, ParamForwardingUrl };
+            var paramList = new[] { StringParam, BoolParam, NumberParam, ForwardingUrlParam };
             for (int i = 1; i <= paramList.Length; i++)
             {
-                var variations = new Variations<string>(paramList, i, GenerateOption.WithoutRepetition);
+                var variations = new Variations<Parameter>(paramList, i, GenerateOption.WithoutRepetition);
                 foreach (var variation in variations)
                 {
-                    var shouldFail = !variation.Contains(ParamForwardingUrl);
+                    var shouldFail = !variation.Contains(ForwardingUrlParam);
 
                     var queryParameters = variation.ToArray();
                     if (shouldFail)
