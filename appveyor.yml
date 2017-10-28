@@ -13,7 +13,7 @@ deploy:
     website: post-proxy
     username: $post-proxy
     password:
-      secure: Y+DtdyBvdsOrb+ZKMr8bJ+xUvkTu+kmljQ0fqmSuC/r9HaeJLxn0AzN6fL8zLcgtDZ7fm0c+leNE964py9bCwQ==
+      secure: okYCVNEge95NfxAbCE4OUiKVQ9k0eQ8XhGQ+mvr6r+DOkw0AnpZ9x+9kjAMurUarObHohhjPmkMnJDuP2bOzrQ==
     remove_files: false
     app_offline: false
     ntlm: false
